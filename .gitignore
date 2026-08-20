@@ -31,3 +31,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# .gitignore
+src/app/routeTree.gen.ts

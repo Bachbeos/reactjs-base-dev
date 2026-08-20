@@ -11,6 +11,7 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
+        "editorconfig.editorconfig",
         "bradlc.vscode-tailwindcss",
         "usernamehw.errorlens",
         "streetsidesoftware.code-spell-checker",
@@ -36,9 +37,7 @@
     }
   },
 
-  "mounts": [
-    "source=pnpm-store,target=/home/node/.local/share/pnpm/store,type=volume"
-  ],
+  "mounts": ["source=pnpm-store,target=/home/node/.local/share/pnpm/store,type=volume"],
 
   "postCreateCommand": "sudo corepack enable && pnpm install",
 
