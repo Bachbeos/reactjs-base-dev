@@ -36,7 +36,7 @@ export const queryClient = new QueryClient({
 
       if (mutation.meta?.redirectTo) {
         router.navigate({
-          to: mutation.meta.redirectTo as any,
+          to: mutation.meta.redirectTo as unknown as string,
           replace: mutation.meta.replace ?? false,
         });
       }

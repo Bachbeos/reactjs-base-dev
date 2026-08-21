@@ -2,8 +2,12 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { axiosInstance } from './client';
-import { refreshAccessToken } from '@/features/auth/api/auth';
-import { useAuthStore } from '@/features/auth/stores/auth';
+
+export interface AuthInterceptorOptions {
+  getAccessToken: () => string | null | undefined;
+  onRefreshToken: () => Promise<string>;
+  onLogout: () => void;
+}
 
 let isRefreshing = false;
 let pendingRequests: {
@@ -19,14 +23,9 @@ const processQueue = (error: unknown, token: string | null = null) => {
   pendingRequests = [];
 };
 
-const logout = () => {
-  useAuthStore.getState().clear();
-  delete axiosInstance.defaults.headers.common.Authorization;
-};
-
-export function setupAuthInterceptor() {
+export function setupAuthInterceptor(options: AuthInterceptorOptions) {
   axiosInstance.interceptors.request.use((config) => {
-    const token = useAuthStore.getState().accessToken;
+    const token = options.getAccessToken();
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   });
@@ -41,7 +40,8 @@ export function setupAuthInterceptor() {
       }
 
       if (originalRequest._retry) {
-        logout();
+        options.onLogout();
+        delete axiosInstance.defaults.headers.common.Authorization;
         return Promise.reject(error);
       }
 
@@ -60,8 +60,7 @@ export function setupAuthInterceptor() {
       isRefreshing = true;
 
       try {
-        const newToken = await refreshAccessToken();
-        useAuthStore.getState().set({ accessToken: newToken });
+        const newToken = await options.onRefreshToken();
         axiosInstance.defaults.headers.common.Authorization = `Bearer ${newToken}`;
 
         processQueue(null, newToken);
@@ -70,7 +69,8 @@ export function setupAuthInterceptor() {
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        logout();
+        options.onLogout();
+        delete axiosInstance.defaults.headers.common.Authorization;
 
         if (axios.isAxiosError(refreshError)) {
           if (refreshError.response?.status === 401) {

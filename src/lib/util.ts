@@ -4,17 +4,30 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
+interface ErrorResponseBody {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+    };
+  };
+  message?: string;
+}
+
 export function ErrorResponseWrapper(err: unknown): string | null {
   if (typeof err !== 'object' || !err) return null;
 
-  if ('response' in err) {
-    const r = err as any;
+  const errorObj = err as ErrorResponseBody;
 
-    if (r.response?.data?.message) return r.response.data.message;
-    if (r.response?.data?.error) return r.response.data.error;
+  if (errorObj.response?.data?.message) {
+    return errorObj.response.data.message;
   }
-
-  if ('message' in err) return String((err as any).message);
+  if (errorObj.response?.data?.error) {
+    return errorObj.response.data.error;
+  }
+  if (typeof errorObj.message === 'string') {
+    return errorObj.message;
+  }
 
   return null;
 }
