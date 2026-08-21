@@ -1,6 +1,6 @@
 import { MutationCache, QueryClient, type QueryKey } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ErrorResponseWrapper } from '@/utils/util';
+import { ErrorResponseWrapper } from '@/lib/util';
 import { router } from '@/app/router';
 
 declare module '@tanstack/react-query' {

@@ -1,13 +1,14 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { Suspense } from 'react';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { Toaster } from '@/components/ui/sooner';
 
 export const Route = createRootRoute({
   component: () => (
     <>
       <Suspense fallback={<div className="p-4">Loading...</div>}>
         <Outlet />
-        {/* <Toaster position="top-right" richColors /> */}
+        <Toaster position="top-right" richColors />
       </Suspense>
 
       {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-left" />}
